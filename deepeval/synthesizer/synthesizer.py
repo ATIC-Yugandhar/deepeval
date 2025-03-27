@@ -103,7 +103,7 @@ class Synthesizer:
             styling_config if styling_config is not None else StylingConfig()
         )
         self.cost_tracking = cost_tracking
-        self.synthesis_cost = 0 if self.using_native_model else None
+        self.synthesis_cost = 0
 
     #############################################################
     # Generate Goldens from Docs
@@ -152,8 +152,7 @@ class Synthesizer:
                     max_context_size=context_construction_config.max_context_length,
                 )
             )
-            if self.synthesis_cost:
-                self.synthesis_cost += context_generator.total_cost
+            self.synthesis_cost += context_generator.total_cost
             print(
                 f"Utilizing {len(set(chain.from_iterable(contexts)))} out of {context_generator.total_chunks} chunks."
             )
@@ -902,8 +901,7 @@ class Synthesizer:
     ) -> BaseModel:
         if is_native_model(model):
             res, cost = model.generate(prompt, schema)
-            if self.synthesis_cost is not None:
-                self.synthesis_cost += cost
+            self.synthesis_cost += cost
             return res
         else:
             try:
@@ -928,8 +926,7 @@ class Synthesizer:
     ) -> BaseModel:
         if is_native_model(model):
             res, cost = await model.a_generate(prompt, schema)
-            if self.synthesis_cost is not None:
-                self.synthesis_cost += cost
+            self.synthesis_cost += cost
             return res
         else:
             try:
@@ -949,8 +946,7 @@ class Synthesizer:
     def _generate(self, prompt: str) -> str:
         if self.using_native_model:
             res, cost = self.model.generate(prompt)
-            if self.synthesis_cost is not None:
-                self.synthesis_cost += cost
+            self.synthesis_cost += cost
             return res
         else:
             try:
@@ -963,8 +959,7 @@ class Synthesizer:
     async def _a_generate(self, prompt: str) -> str:
         if self.using_native_model:
             res, cost = await self.model.a_generate(prompt)
-            if self.synthesis_cost is not None:
-                self.synthesis_cost += cost
+            self.synthesis_cost += cost
             return res
         else:
             try:
